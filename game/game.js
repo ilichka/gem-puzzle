@@ -913,6 +913,7 @@ function start() {
         anotherEvent();
         save();
         start();
+        back();
     })
 }
 
