@@ -86,11 +86,9 @@ const game = {
         'sixty-one': 61,
         'sixty-two': 62,
         'sixty-three': 63,
-        'nothing': '',
+        'nothing': ' ',
     }
 };
-
-
 
 
 let base = 60;
@@ -194,11 +192,6 @@ function StartStop() {
 }
 
 
-
-
-
-
-
 let nothingPosition, pressedActive, squareNumber = [], innerTxt = [], pressedActiveNum, turn = 0;
 
 function shuffle(squareNumberay) {
@@ -220,7 +213,11 @@ function shuffle(squareNumberay) {
     return squareNumberay;
 }
 
-function init() {
+function init(n) {
+    if (n) {
+    } else {
+        turn = localStorage.getItem('turn');
+    }
     game.elementsField.main = document.createElement("div");
     game.elementsField.button = document.createElement("div");
     game.elementsField.field = document.createElement("div");
@@ -234,8 +231,12 @@ function init() {
     game.elementsField.info.classList.add('info');
     game.elementsField.button.appendChild(knopOchka());
     game.elementsField.info.appendChild(info());
-    game.elementsField.field.appendChild(createField(game.selectedSize));
-
+    if (n) {
+        game.elementsField.field.appendChild(createField(game.selectedSize));
+    } else {
+        turn = localStorage.getItem('turn');
+        game.elementsField.field.appendChild(createSavedField(game.selectedSize));
+    }
 
     // Add to DOM
     game.elementsField.main.appendChild(game.elementsField.button);
@@ -263,7 +264,7 @@ function info() {
     const fragment = document.createDocumentFragment();
     let i = 0;
     const tt = ['time', 'turns'];
-    const innerTxt = [`time: ${turn}`, `turns: ${turn}`];
+    const innerTxt = [`time: 0  `, `turns: ${turn}`];
     tt.forEach(key => {
         const elem = document.createElement('div');
         elem.classList.add('information', `${tt[i]}`);
@@ -279,6 +280,11 @@ function selectSize() {
     let i = 0;
     const sizes = ['threeXthree', 'fourXfour', 'fiveXfive', 'sixXsix', 'sevenXseven', 'eightXeight'];
     const innerSize = ['3X3', '4X4', '5X5', '6X6', '7X7', '8X8'];
+    const button = document.createElement('button');
+    button.setAttribute("type", "button");
+    button.classList.add( `loadSave`);
+    button.innerHTML = 'Load saved game';
+    fragment.appendChild(button);
     sizes.forEach(key => {
         const button = document.createElement('button');
         button.setAttribute("type", "button");
@@ -293,8 +299,8 @@ function selectSize() {
 function knopOchka() {
     const fragment = document.createDocumentFragment();
     let i = 0;
-    const controls = ['start', 'stop', 'save', 'results'];
-    const innerTxt = ['Размешать и начать', 'Стоп', 'Сохранить', 'Резуьтаты'];
+    const controls = ['back','start', 'stop', 'save', 'results'];
+    const innerTxt = ['<------','Размешать и начать', 'Стоп', 'Сохранить', 'Резуьтаты'];
     controls.forEach(key => {
         const button = document.createElement('button');
         button.setAttribute("type", "button");
@@ -331,7 +337,7 @@ function createField(n) {
         console.log(1);*/
         /* const squareNumber = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nothing'];
          const innerTxt = ['1', '2', '3', '4', '5', '6', '7', '8', ''];*/
-       /* console.log(squareNumber.indexOf('nothing'));*/
+        /* console.log(squareNumber.indexOf('nothing'));*/
         nothingPosition = squareNumber.indexOf('nothing');
         /*console.log(nothingPosition);*/
         squareNumber.forEach(key => {
@@ -532,10 +538,10 @@ function createField(n) {
             }
         }
     }
-   /* localStorage.setItem('fill', 'true');
-    localStorage.setItem('innerTXT', innerTxt);
-    localStorage.setItem('squareNumber', squareNumber);
-    localStorage.setItem('turn', turn);*/
+    /* localStorage.setItem('fill', 'true');
+     localStorage.setItem('innerTXT', innerTxt);
+     localStorage.setItem('squareNumber', squareNumber);
+     localStorage.setItem('turn', turn);*/
     /* const controls = ['start', 'stop', 'save', 'results'];
      const innerSize = ['Размешать и начать','Стоп','Сохранить','Резуьтаты'];
      controls.forEach(key => {
@@ -549,12 +555,243 @@ function createField(n) {
     return fragment;
 }
 
+function createSavedField(n) {
+    const fragment = document.createDocumentFragment();
+    let keyPos = 0, i=0;
+    if (n === '3X3') {
+        squareNumber = localStorage.getItem('squareNumber');
+        squareNumber = squareNumber.split(',');
+        /*innerTxt = localStorage.getItem('innerTxt');
+        for (let j=1;j<innerTxt.length;j++) {
+            if(innerTxt[j]===innerTxt[j+1]) {
+                innerTxt = innerTxt.replace(/,,/gi, ' ');
+            }
+        }
+        if(innerTxt[0]===',') {
+            innerTxt[0] = ' ';
+        } else {
+            if(innerTxt[8]===',') {
+                innerTxt[8] = ' ';
+            }
+        }
+        innerTxt = innerTxt.replace(/,/gi, '');*/
+        for (let i = 0; i < squareNumber.length; i++) {
+            innerTxt.push(game.classes[squareNumber[i]]);
+        }
+        console.log(innerTxt);
+        nothingPosition = squareNumber.indexOf('nothing');
+        squareNumber.forEach(key => {
+            const button = document.createElement('div');
+            button.classList.add('square', `${squareNumber[i]}`);
+            if (keyPos === nothingPosition - 1 && keyPos + 1 !== 3 && keyPos + 1 !== 6 || keyPos === nothingPosition + 1 && keyPos !== 3 && keyPos !== 6 || keyPos === nothingPosition - 3 /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + 3) {
+                button.classList.add('active');
+            }
+            button.innerHTML = innerTxt[i];
+            i++;
+            fragment.appendChild(button);
+            keyPos++;
+        });
+    } else {
+        if (n === '4X4') {
+            squareNumber = localStorage.getItem('squareNumber');
+            squareNumber = squareNumber.split(',');
+           /* innerTxt = localStorage.getItem('innerTxt');
+            for (let j=1;j<innerTxt.length;j++) {
+                if(innerTxt[j]===innerTxt[j+1]) {
+                    innerTxt = innerTxt.replace(/,,/gi, ' ');
+                }
+            }
+            if(innerTxt[0]===',') {
+                innerTxt[0] = ' ';
+            } else {
+                if(innerTxt[15]===',') {
+                    innerTxt[15] = ' ';
+                }
+            }
+            innerTxt = innerTxt.replace(/,/gi, '');*/
+            for (let i = 0; i < squareNumber.length; i++) {
+                innerTxt.push(game.classes[squareNumber[i]]);
+            }
+            console.log(innerTxt);
+            nothingPosition = squareNumber.indexOf('nothing');
+            squareNumber.forEach(key => {
+                const button = document.createElement('div');
+                button.classList.add('square', `${squareNumber[i]}`);
+                if (keyPos === nothingPosition - 1 && keyPos + 1 !== 4 && keyPos + 1 !== 8 && keyPos + 1 !== 12 || keyPos === nothingPosition + 1 && keyPos !== 4 && keyPos !== 8 && keyPos !== 12 || keyPos === nothingPosition - 4 /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + 4) {
+                    button.classList.add('active');
+                }
+                button.innerHTML = innerTxt[i];
+                i++;
+                fragment.appendChild(button);
+                keyPos++;
+            });
+        } else {
+            if (n === '5X5') {
+                squareNumber = localStorage.getItem('squareNumber');
+                squareNumber = squareNumber.split(',');
+                /*innerTxt = localStorage.getItem('innerTxt');
+                for (let j=1;j<innerTxt.length;j++) {
+                    if(innerTxt[j]===innerTxt[j+1]) {
+                        innerTxt = innerTxt.replace(/,,/gi, ' ');
+                    }
+                }
+                if(innerTxt[0]===',') {
+                    innerTxt[0] = ' ';
+                } else {
+                    if(innerTxt[24]===',') {
+                        innerTxt[24] = ' ';
+                    }
+                }
+                innerTxt = innerTxt.replace(/,/gi, '');*/
+                for (let i = 0; i < squareNumber.length; i++) {
+                    innerTxt.push(game.classes[squareNumber[i]]);
+                }
+                console.log(innerTxt);
+                nothingPosition = squareNumber.indexOf('nothing');
+                squareNumber.forEach(key => {
+                    const button = document.createElement('div');
+                    button.classList.add('square', `${squareNumber[i]}`);
+                    if (keyPos === nothingPosition - 1 && keyPos + 1 !== 5 && keyPos + 1 !== 10 && keyPos + 1 !== 15 && keyPos + 1 !== 20 || keyPos === nothingPosition + 1 && keyPos !== 5 && keyPos !== 10 && keyPos !== 15 && keyPos !== 20 || keyPos === nothingPosition - 5 /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + 5) {
+                        button.classList.add('active');
+                    }
+                    button.innerHTML = innerTxt[i];
+                    i++;
+                    fragment.appendChild(button);
+                    keyPos++;
+                });
+            } else {
+                if (n === '6X6') {
+                    squareNumber = localStorage.getItem('squareNumber');
+                    squareNumber = squareNumber.split(',');
+                    /*innerTxt = localStorage.getItem('innerTxt');
+                    for (let j=1;j<innerTxt.length;j++) {
+                        if(innerTxt[j]===innerTxt[j+1]) {
+                            innerTxt = innerTxt.replace(/,,/gi, ' ');
+                        }
+                    }
+                    if(innerTxt[0]===',') {
+                        innerTxt[0] = ' ';
+                    } else {
+                        if(innerTxt[35]===',') {
+                            innerTxt[35] = ' ';
+                        }
+                    }
+                    innerTxt = innerTxt.replace(/,/gi, '');*/
+                    for (let i = 0; i < squareNumber.length; i++) {
+                        innerTxt.push(game.classes[squareNumber[i]]);
+                    }
+                    console.log(innerTxt);
+                    nothingPosition = squareNumber.indexOf('nothing');
+                    squareNumber.forEach(key => {
+                        console.log(game.classes[`${key}`]);
+                        const button = document.createElement('div');
+                        button.classList.add('square', `${squareNumber[i]}`);
+                        if (keyPos === nothingPosition - 1 && keyPos + 1 !== 6 && keyPos + 1 !== 12 && keyPos + 1 !== 18 && keyPos + 1 !== 24 && keyPos + 1 !== 30 || keyPos === nothingPosition + 1 && keyPos !== 6 && keyPos !== 12 && keyPos !== 18 && keyPos !== 24 && keyPos !== 30 || keyPos === nothingPosition - 6 /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + 6) {
+                            button.classList.add('active');
+                        }
+                        button.innerHTML = innerTxt[i];
+                        i++;
+                        fragment.appendChild(button);
+                        keyPos++;
+                    });
+                } else {
+                    if (n === '7X7') {
+                        squareNumber = localStorage.getItem('squareNumber');
+                        squareNumber = squareNumber.split(',');
+                        /*innerTxt = localStorage.getItem('innerTxt');
+                        for (let j=1;j<innerTxt.length;j++) {
+                            if(innerTxt[j]===innerTxt[j+1]) {
+                                innerTxt = innerTxt.replace(/,,/gi, ' ');
+                            }
+                        }
+                        if(innerTxt[0]===',') {
+                            innerTxt[0] = ' ';
+                        } else {
+                            if(innerTxt[48]===',') {
+                                innerTxt[48] = ' ';
+                            }
+                        }
+                        innerTxt = innerTxt.replace(/,/gi, '');*/
+                        for (let i = 0; i < squareNumber.length; i++) {
+                            innerTxt.push(game.classes[squareNumber[i]]);
+                        }
+                        console.log(innerTxt);
+                        nothingPosition = squareNumber.indexOf('nothing');
+                        squareNumber.forEach(key => {
+                            const button = document.createElement('div');
+                            button.classList.add('square', `${squareNumber[i]}`);
+                            if (keyPos === nothingPosition - 1 && keyPos + 1 !== 7 && keyPos + 1 !== 14 && keyPos + 1 !== 21 && keyPos + 1 !== 28 && keyPos + 1 !== 35 && keyPos + 1 !== 42 || keyPos === nothingPosition + 1 && keyPos !== 7 && keyPos !== 14 && keyPos !== 21 && keyPos !== 28 && keyPos !== 35 && keyPos !== 42 || keyPos === nothingPosition - 7 /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + 7) {
+                                button.classList.add('active');
+                            }
+                            button.innerHTML = innerTxt[i];
+                            i++;
+                            fragment.appendChild(button);
+                            keyPos++;
+                        });
+                    } else {
+                        if (n === '8X8') {
+                            squareNumber = localStorage.getItem('squareNumber');
+                            squareNumber = squareNumber.split(',');
+                            /*innerTxt = localStorage.getItem('innerTxt');
+                            for (let j=1;j<innerTxt.length;j++) {
+                                if(innerTxt[j]===innerTxt[j+1]) {
+                                    innerTxt = innerTxt.replace(/,,/gi, ' ');
+                                }
+                            }
+                            if(innerTxt[0]===',') {
+                                innerTxt[0] = ' ';
+                            } else {
+                                if(innerTxt[63]===',') {
+                                    innerTxt[63] = ' ';
+                                }
+                            }
+                            innerTxt = innerTxt.replace(/,/gi, '');*/
+                            for (let i = 0; i < squareNumber.length; i++) {
+                                innerTxt.push(game.classes[squareNumber[i]]);
+                            }
+                            console.log(innerTxt);
+                            nothingPosition = squareNumber.indexOf('nothing');
+                            squareNumber.forEach(key => {
+                                const button = document.createElement('div');
+                                button.classList.add('square', `${squareNumber[i]}`);
+                                if (keyPos === nothingPosition - 1 && keyPos + 1 !== 8 && keyPos + 1 !== 16 && keyPos + 1 !== 24 && keyPos + 1 !== 32 && keyPos + 1 !== 40 && keyPos + 1 !== 48 && keyPos + 1 !== 56 || keyPos === nothingPosition + 1 && keyPos !== 8 && keyPos !== 16 && keyPos !== 24 && keyPos !== 32 && keyPos !== 40 && keyPos !== 48 && keyPos !== 56 || keyPos === nothingPosition - 8 /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + 8) {
+                                    button.classList.add('active');
+                                }
+                                button.innerHTML = innerTxt[i];
+                                i++;
+                                fragment.appendChild(button);
+                                keyPos++;
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /* localStorage.setItem('fill', 'true');
+     localStorage.setItem('innerTXT', innerTxt);
+     localStorage.setItem('squareNumber', squareNumber);
+     localStorage.setItem('turn', turn);*/
+    /* const controls = ['start', 'stop', 'save', 'results'];
+     const innerSize = ['Размешать и начать','Стоп','Сохранить','Резуьтаты'];
+     controls.forEach(key => {
+         const button = document.createElement('button');
+         button.setAttribute("type", "button");
+         button.classList.add('button', `${controls[i]}`, 'blue');
+         button.innerHTML = innerSize[i];
+         i++;
+         fragment.appendChild(button);
+     });*/
+    return fragment;
+    console.log(2);
+}
+
 function moveButton(n) {
     let vremenno, keyPos = 0, square;
     if (pressedActiveNum === nothingPosition - n) {
         document.querySelector('.nothing').innerHTML = document.querySelector(`.${pressedActive}`).innerHTML;
         document.querySelector('.nothing').setAttribute('class', `square ${pressedActive}`);
-        document.querySelector(`.${pressedActive}`).innerHTML = '';
+        document.querySelector(`.${pressedActive}`).innerHTML = ' ';
         document.querySelector(`.${pressedActive}`).setAttribute('class', ` square nothing`);
         vremenno = squareNumber[pressedActiveNum];
         squareNumber[pressedActiveNum] = squareNumber[nothingPosition];
@@ -565,7 +802,7 @@ function moveButton(n) {
         nothingPosition = squareNumber.indexOf('nothing');
         squareNumber.forEach(key => {
             square = document.querySelectorAll('.square');
-            if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2*n && keyPos + 1 !== 3*n && keyPos + 1 !== 4*n && keyPos + 1 !== 5*n && keyPos + 1 !== 6*n && keyPos + 1 !== 7*n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2*n && keyPos !== 3*n && keyPos !== 4*n && keyPos !== 5*n && keyPos !== 6*n && keyPos !== 7*n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
+            if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2 * n && keyPos + 1 !== 3 * n && keyPos + 1 !== 4 * n && keyPos + 1 !== 5 * n && keyPos + 1 !== 6 * n && keyPos + 1 !== 7 * n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2 * n && keyPos !== 3 * n && keyPos !== 4 * n && keyPos !== 5 * n && keyPos !== 6 * n && keyPos !== 7 * n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
                 square = square[keyPos];
                 square.classList.add('active');
             }
@@ -576,7 +813,7 @@ function moveButton(n) {
         if (pressedActiveNum === nothingPosition - 1) {
             document.querySelector('.nothing').innerHTML = document.querySelector(`.${pressedActive}`).innerHTML;
             document.querySelector('.nothing').setAttribute('class', `square ${pressedActive}`);
-            document.querySelector(`.${pressedActive}`).innerHTML = '';
+            document.querySelector(`.${pressedActive}`).innerHTML = ' ';
             document.querySelector(`.${pressedActive}`).setAttribute('class', `square nothing`);
             vremenno = squareNumber[pressedActiveNum];
             squareNumber[pressedActiveNum] = squareNumber[nothingPosition];
@@ -587,7 +824,7 @@ function moveButton(n) {
             nothingPosition = squareNumber.indexOf('nothing');
             squareNumber.forEach(key => {
                 square = document.querySelectorAll('.square');
-                if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2*n && keyPos + 1 !== 3*n && keyPos + 1 !== 4*n && keyPos + 1 !== 5*n && keyPos + 1 !== 6*n && keyPos + 1 !== 7*n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2*n && keyPos !== 3*n && keyPos !== 4*n && keyPos !== 5*n && keyPos !== 6*n && keyPos !== 7*n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
+                if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2 * n && keyPos + 1 !== 3 * n && keyPos + 1 !== 4 * n && keyPos + 1 !== 5 * n && keyPos + 1 !== 6 * n && keyPos + 1 !== 7 * n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2 * n && keyPos !== 3 * n && keyPos !== 4 * n && keyPos !== 5 * n && keyPos !== 6 * n && keyPos !== 7 * n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
                     square = square[keyPos];
                     square.classList.add('active');
                 }
@@ -597,7 +834,7 @@ function moveButton(n) {
         } else {
             if (pressedActiveNum === nothingPosition + n) {
                 document.querySelector('.nothing').innerHTML = document.querySelector(`.${pressedActive}`).innerHTML;
-                document.querySelector(`.${pressedActive}`).innerHTML = '';
+                document.querySelector(`.${pressedActive}`).innerHTML = ' ';
                 document.querySelector(`.${pressedActive}`).setAttribute('class', `square nothing`);
                 document.querySelector('.nothing').setAttribute('class', `square ${pressedActive}`);
                 vremenno = squareNumber[pressedActiveNum];
@@ -609,7 +846,7 @@ function moveButton(n) {
                 nothingPosition = squareNumber.indexOf('nothing');
                 squareNumber.forEach(key => {
                     square = document.querySelectorAll('.square');
-                    if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2*n && keyPos + 1 !== 3*n && keyPos + 1 !== 4*n && keyPos + 1 !== 5*n && keyPos + 1 !== 6*n && keyPos + 1 !== 7*n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2*n && keyPos !== 3*n && keyPos !== 4*n && keyPos !== 5*n && keyPos !== 6*n && keyPos !== 7*n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
+                    if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2 * n && keyPos + 1 !== 3 * n && keyPos + 1 !== 4 * n && keyPos + 1 !== 5 * n && keyPos + 1 !== 6 * n && keyPos + 1 !== 7 * n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2 * n && keyPos !== 3 * n && keyPos !== 4 * n && keyPos !== 5 * n && keyPos !== 6 * n && keyPos !== 7 * n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
                         square = square[keyPos];
                         square.classList.add('active');
                     }
@@ -619,7 +856,7 @@ function moveButton(n) {
             } else {
                 if (pressedActiveNum === nothingPosition + 1) {
                     document.querySelector('.nothing').innerHTML = document.querySelector(`.${pressedActive}`).innerHTML;
-                    document.querySelector(`.${pressedActive}`).innerHTML = '';
+                    document.querySelector(`.${pressedActive}`).innerHTML = ' ';
                     document.querySelector(`.${pressedActive}`).setAttribute('class', `square nothing`);
                     document.querySelector('.nothing').setAttribute('class', `square ${pressedActive}`);
                     vremenno = squareNumber[pressedActiveNum];
@@ -631,7 +868,7 @@ function moveButton(n) {
                     nothingPosition = squareNumber.indexOf('nothing');
                     squareNumber.forEach(key => {
                         square = document.querySelectorAll('.square');
-                        if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2*n && keyPos + 1 !== 3*n && keyPos + 1 !== 4*n && keyPos + 1 !== 5*n && keyPos + 1 !== 6*n && keyPos + 1 !== 7*n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2*n && keyPos !== 3*n && keyPos !== 4*n && keyPos !== 5*n && keyPos !== 6*n && keyPos !== 7*n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
+                        if (keyPos === nothingPosition - 1 && keyPos + 1 !== n && keyPos + 1 !== 2 * n && keyPos + 1 !== 3 * n && keyPos + 1 !== 4 * n && keyPos + 1 !== 5 * n && keyPos + 1 !== 6 * n && keyPos + 1 !== 7 * n || keyPos === nothingPosition + 1 && keyPos !== n && keyPos !== 2 * n && keyPos !== 3 * n && keyPos !== 4 * n && keyPos !== 5 * n && keyPos !== 6 * n && keyPos !== 7 * n || keyPos === nothingPosition - n /*&& keyPos - 3 > 0 && keyPos + 3 < 8*/ || keyPos === nothingPosition + n) {
                             square = square[keyPos];
                             square.classList.add('active');
                         }
@@ -653,9 +890,10 @@ function moveButton(n) {
 function save() {
     document.querySelector('.save').addEventListener('click', () => {
         localStorage.setItem('fill', 'true');
-        localStorage.setItem('innerTXT', innerTxt);
+        localStorage.setItem('innerTxt', innerTxt);
         localStorage.setItem('squareNumber', squareNumber);
         localStorage.setItem('turn', turn);
+        localStorage.setItem('selectedSize', game.selectedSize);
         alert('Your progress have been saved!');
     })
 }
@@ -667,13 +905,20 @@ function start() {
         innerTxt = [];
         squareNumber = [];
         turn = 0;
-    /*    delete localStorage.fill;
-        delete localStorage.innerTXT;
-        delete localStorage.squareNumber;
-        delete localStorage.turn;*/
-        init();
+        /*    delete localStorage.fill;
+            delete localStorage.innerTXT;
+            delete localStorage.squareNumber;
+            delete localStorage.turn;*/
+        init(true);
         anotherEvent();
+        save();
         start();
+    })
+}
+
+function back() {
+    document.querySelector('.back').addEventListener('click',()=> {
+        location.href=location.href;
     })
 }
 
@@ -683,10 +928,11 @@ function event() {
             document.querySelector('.size__select').classList.add('display_none');
             console.log(e.currentTarget.innerHTML);
             game.selectedSize = e.currentTarget.innerHTML;
-            init();
+            init(true);
             anotherEvent();
             start();
             save();
+            back();
         })
     });
 }
@@ -694,97 +940,126 @@ function event() {
 function anotherEvent() {
     function listener(e) {
         document.querySelectorAll('.active').forEach(key => {
-            key.removeEventListener('click',listener);
+            key.removeEventListener('click', listener);
             key.classList.remove('active')
         });
-            pressedActive = e.currentTarget.getAttribute('class');
-            pressedActive = pressedActive.split(' ');
-            pressedActive = pressedActive[1];
-            pressedActiveNum = squareNumber.indexOf(pressedActive);
-            console.log(`class = ${pressedActive}`);
-            console.log(`nomer = ${pressedActiveNum}`);
-            /*  console.log('da');*/
-            if (game.selectedSize === '3X3') {
-                moveButton(3);
+        pressedActive = e.currentTarget.getAttribute('class');
+        pressedActive = pressedActive.split(' ');
+        pressedActive = pressedActive[1];
+        pressedActiveNum = squareNumber.indexOf(pressedActive);
+        console.log(`class = ${pressedActive}`);
+        console.log(`nomer = ${pressedActiveNum}`);
+        /*  console.log('da');*/
+        if (game.selectedSize === '3X3') {
+            moveButton(3);
+            let psevdoresult = squareNumber.join('');
+            let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nothing'];
+            result = result.join('');
+            if (psevdoresult === result) {
+                alert(`turns: ${turn}\n time:`)
+            }
+        } else {
+            if (game.selectedSize === '4X4') {
+                moveButton(4);
                 let psevdoresult = squareNumber.join('');
-                let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nothing'];
+                let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'nothing'];
                 result = result.join('');
-                if(psevdoresult === result) {
+                if (psevdoresult === result) {
                     alert(`turns: ${turn}\n time:`)
                 }
             } else {
-                if (game.selectedSize === '4X4') {
-                    moveButton(4);
+                if (game.selectedSize === '5X5') {
+                    moveButton(5);
                     let psevdoresult = squareNumber.join('');
-                    let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'nothing'];
+                    let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'nothing'];
                     result = result.join('');
-                    if(psevdoresult === result) {
+                    if (psevdoresult === result) {
                         alert(`turns: ${turn}\n time:`)
                     }
                 } else {
-                    if (game.selectedSize === '5X5') {
-                        moveButton(5);
+                    if (game.selectedSize === '6X6') {
+                        moveButton(6);
                         let psevdoresult = squareNumber.join('');
-                        let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'nothing'];
+                        let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one', 'thirty-two', 'thirty-three', 'thirty-four', 'thirty-five', 'nothing'];
                         result = result.join('');
-                        if(psevdoresult === result) {
+                        if (psevdoresult === result) {
                             alert(`turns: ${turn}\n time:`)
                         }
                     } else {
-                        if (game.selectedSize === '6X6') {
-                            moveButton(6);
+                        if (game.selectedSize === '7X7') {
+                            moveButton(7);
                             let psevdoresult = squareNumber.join('');
-                            let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one', 'thirty-two', 'thirty-three', 'thirty-four', 'thirty-five', 'nothing'];
+                            let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one', 'thirty-two', 'thirty-three', 'thirty-four', 'thirty-five', 'thirty-six', 'thirty-seven', 'thirty-eight', 'thirty-nine', 'forty', 'forty-one', 'forty-two', 'forty-three', 'forty-four', 'forty-five', 'forty-six', 'forty-seven', 'forty-eight', 'nothing'];
                             result = result.join('');
-                            if(psevdoresult === result) {
+                            if (psevdoresult === result) {
                                 alert(`turns: ${turn}\n time:`)
                             }
                         } else {
-                            if (game.selectedSize === '7X7') {
-                                moveButton(7);
+                            if (game.selectedSize === '8X8') {
+                                moveButton(8);
                                 let psevdoresult = squareNumber.join('');
-                                let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one', 'thirty-two', 'thirty-three', 'thirty-four', 'thirty-five', 'thirty-six', 'thirty-seven', 'thirty-eight', 'thirty-nine', 'forty', 'forty-one', 'forty-two', 'forty-three', 'forty-four', 'forty-five', 'forty-six', 'forty-seven', 'forty-eight', 'nothing'];
+                                let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one', 'thirty-two', 'thirty-three', 'thirty-four', 'thirty-five', 'thirty-six', 'thirty-seven', 'thirty-eight', 'thirty-nine', 'forty', 'forty-one', 'forty-two', 'forty-three', 'forty-four', 'forty-five', 'forty-six', 'forty-seven', 'forty-eight', 'forty-nine', 'fifty', 'fifty-one', 'fifty-two', 'fifty-three', 'fifty-four', 'fifty-five', 'fifty-six', 'fifty-seven', 'fifty-eight', 'fifty-nine', 'sixty', 'sixty-one', 'sixty-two', 'sixty-three', 'nothing'];
                                 result = result.join('');
-                                if(psevdoresult === result) {
+                                if (psevdoresult === result) {
                                     alert(`turns: ${turn}\n time:`)
-                                }
-                            } else {
-                                if (game.selectedSize === '8X8') {
-                                    moveButton(8);
-                                    let psevdoresult = squareNumber.join('');
-                                    let result = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty', 'twenty-one', 'twenty-two', 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six', 'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty', 'thirty-one', 'thirty-two', 'thirty-three', 'thirty-four', 'thirty-five', 'thirty-six', 'thirty-seven', 'thirty-eight', 'thirty-nine', 'forty', 'forty-one', 'forty-two', 'forty-three', 'forty-four', 'forty-five', 'forty-six', 'forty-seven', 'forty-eight', 'forty-nine', 'fifty', 'fifty-one', 'fifty-two', 'fifty-three', 'fifty-four', 'fifty-five', 'fifty-six', 'fifty-seven', 'fifty-eight', 'fifty-nine', 'sixty', 'sixty-one', 'sixty-two', 'sixty-three', 'nothing'];
-                                    result = result.join('');
-                                    if(psevdoresult === result) {
-                                        alert(`turns: ${turn}\n time:`)
-                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            anotherEvent();
+        }
+        anotherEvent();
     }
+
     console.log('srabotalo');
     document.querySelectorAll('.active').forEach(active => {
-        active.addEventListener('click',listener)
+        active.addEventListener('click', listener)
     });
 }
 
-
-  /*  document.addEventListener('click', () => {
+function loadSave() {
+    document.querySelector('.loadSave').addEventListener('click', ()=>{
+        console.log(1);
+        init(false);
+        document.querySelector('.size__select').classList.add('display_none');
+        if(game.selectedSize === '4X4') {
+            document.querySelector('.field').classList.add('field2')
+        } else {
+            if(game.selectedSize === '5X5') {
+                document.querySelector('.field').classList.add('field3')
+            } else {
+                if(game.selectedSize === '6X6') {
+                    document.querySelector('.field').classList.add('field4')
+                } else {
+                    if(game.selectedSize === '7X7') {
+                        document.querySelector('.field').classList.add('field5')
+                    } else {
+                        if(game.selectedSize === '8X8') {
+                            document.querySelector('.field').classList.add('field6')
+                        }
+                    }
+                }
+            }
+        }
+        start();
         anotherEvent();
-        console.log('srabotalo')
-    });*/
+        save();
+        back();
+        })
+}
+
+/*  document.addEventListener('click', () => {
+      anotherEvent();
+      console.log('srabotalo')
+  });*/
 
 
 document.addEventListener("DOMContentLoaded", function () {
-    /*if(localStorage.getItem('fill')==='true') {
-        alert('jopa')
-    } else {*/
-        initSizeSelecting();
-        event();
-
+    game.selectedSize = localStorage.getItem('selectedSize');
+    initSizeSelecting();
+    event();
+    loadSave();
 });
 
 
